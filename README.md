@@ -4,7 +4,7 @@ Code accompanying the manuscript:
 
 > **[Manuscript title — placeholder]**
 > Je Hun Moon
-> *Journal of the Royal Society Interface* (under review/accepted)
+> *Journal of the Royal Society Interface* 
 > DOI: *[to be added upon publication]*
 
 **Author**: Je Hun Moon
