@@ -52,7 +52,7 @@ pip install -r requirements.txt
 ## Repository layout
 
 ```
-JRSI_Vaccine_Codon_Opt_Code_v2/
+codon-opt-vaccine/
 ├── README.md
 ├── LICENSE                       # GPL-3.0
 ├── requirements.txt
