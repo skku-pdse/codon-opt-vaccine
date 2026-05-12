@@ -177,9 +177,7 @@ the **Human Protein Atlas** (HPA) "RNA consensus tissue gene data" — specifica
 the **top 1% most highly expressed protein-coding genes in human skeletal muscle**
 (ranked by descending nTPM). Mitochondrial, ribosomal, retired, and pseudogenes
 were filtered out using NCBI RefSeq annotations prior to ranking. See the
-accompanying manuscript and its Supplementary Material for the full reference
-gene list and methodological details, including alternative reference sets
-(KAZUSA, CoCoPUTs, ribosomal-only).
+accompanying manuscript for details.
 
 - **`*/sequence(DNA).txt`** — input candidate sequences in FASTA format. The
   copy in each module folder is identical and is included so each module can be
