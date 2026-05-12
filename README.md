@@ -17,7 +17,7 @@ Code accompanying the manuscript:
 ## Overview
 
 This repository contains the analysis pipeline used in the paper to evaluate
-candidate codon-optimized mRNA sequences against multiple sequence-design
+candidate codon-optimized sequences against multiple sequence-design
 criteria. The pipeline is organised into five independent modules that can be
 run in any order; each module reads a DNA FASTA file and writes its results to
 the same folder.
@@ -25,7 +25,7 @@ the same folder.
 | # | Module | Purpose |
 |---|--------|---------|
 | 01 | `01_codon_bias` | Compute reference codon usage bias (ICU & CC) from a gene set |
-| 02 | `02_codon_index` | Score sequences with ICU, CC, and CAI indices (COOL-compatible) |
+| 02 | `02_codon_index` | Score sequences with ICU, CC, and CAI indices |
 | 03 | `03_cpg_analysis` | Detect CpG dinucleotides per reading frame |
 | 04 | `04_codon_similarity` | Compute pairwise codon-level percent identity matrix |
 | 05 | `05_exclusion_motif` | Locate splice / TATA-box / regulatory motifs to be avoided |
