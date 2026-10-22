@@ -57,6 +57,26 @@ def _normalize_codon(s: str) -> str:
     return s.strip().upper().replace('U', 'T')
 
 
+def _read_count_file(path: str) -> dict:
+    """Read a two-column '<key>\t<count>' reference file into {key: float}.
+
+    Keys are normalised the same way as everywhere else (upper-case, U -> T,
+    '.' -> '*') so DNA/RNA spellings of the same table compare equal.
+    """
+    out = {}
+    with open(path, encoding='utf-8', errors='replace') as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split('\t')
+            if len(parts) < 2:
+                continue
+            key = parts[0].strip().upper().replace('U', 'T').replace('.', '*')
+            out[key] = float(parts[1])
+    return out
+
+
 def load_trans_table(path: str):
     """
     Parse trans_table.txt:  <codon>\t<aa>
@@ -112,6 +132,21 @@ def build_icu_table(count_codon_path: str, count_aa_path: str,
             if aidx >= 0:
                 aa_count[aidx] += cnt
 
+    # ── Consistency check with count_aa.txt ──────────────────────────────
+    # Parity with the original COOL Perl (comp_bias.pl, comp_icu_table): the
+    # amino-acid totals used in the arithmetic are ALWAYS re-derived from
+    # count_codon.txt, in both implementations.  count_aa.txt is read only to
+    # verify that the reference set is internally consistent, and a mismatch is
+    # reported rather than passing silently.
+    _aa_ref = _read_count_file(count_aa_path)
+    for _aa, _idx in AA2IDX.items():
+        if _aa not in _aa_ref:
+            print(f"[WARN] {os.path.basename(count_aa_path)}: "
+                  f"amino acid '{_aa}' is missing")
+        elif _aa_ref[_aa] != aa_count[_idx]:
+            print(f"[WARN] {os.path.basename(count_aa_path)}: '{_aa}' "
+                  f"derived {aa_count[_idx]:.0f} vs file {_aa_ref[_aa]:.0f}")
+
     # Vectorised division
     denom    = aa_count[c2aa.clip(0)]          # shape (64,)
     has_aa   = (c2aa >= 0) & (denom > 0)
@@ -120,7 +155,8 @@ def build_icu_table(count_codon_path: str, count_aa_path: str,
     return icu_freq
 
 
-def build_cc_table(count_codonp_path: str, c2aa: np.ndarray) -> np.ndarray:
+def build_cc_table(count_codonp_path: str, count_aap_path: str,
+                   c2aa: np.ndarray) -> np.ndarray:
     """
     Replicate comp_cc_table() from comp_bias.pl.
 
@@ -166,6 +202,24 @@ def build_cc_table(count_codonp_path: str, c2aa: np.ndarray) -> np.ndarray:
             if aip >= 0:
                 aap_count[aip] += cnt
 
+    # ── Consistency check with count_aap.txt ────────────────────────────
+    # Same convention as build_icu_table: the denominators come from the
+    # re-derived totals; count_aap.txt is only cross-checked (comp_bias.pl,
+    # comp_cc_table).
+    _aap_ref = _read_count_file(count_aap_path)
+    for _a1 in ALL_AA:
+        if _a1 == '*':
+            continue
+        for _a2 in ALL_AA:
+            _k = _a1 + _a2
+            _i = AA2IDX[_a1] * N_AA + AA2IDX[_a2]
+            if _k not in _aap_ref:
+                print(f"[WARN] {os.path.basename(count_aap_path)}: "
+                      f"amino-acid pair '{_k}' is missing")
+            elif _aap_ref[_k] != aap_count[_i]:
+                print(f"[WARN] {os.path.basename(count_aap_path)}: '{_k}' "
+                      f"derived {aap_count[_i]:.0f} vs file {_aap_ref[_k]:.0f}")
+
     # Vectorised computation of cc_freq
     valid_pidx   = np.where(aap_lut >= 0)[0]
     denom_vals   = aap_count[aap_lut[valid_pidx]]
@@ -188,7 +242,8 @@ def build_tables(ref_dir: str) -> dict:
 
     c2aa      = load_trans_table(p('trans_table.txt'))
     icu_freq  = build_icu_table(p('count_codon.txt'), p('count_aa.txt'), c2aa)
-    cc_freq, aap_lut = build_cc_table(p('count_codonp.txt'), c2aa)
+    cc_freq, aap_lut = build_cc_table(p('count_codonp.txt'),
+                                      p('count_aap.txt'), c2aa)
 
     # Most-frequent ICU value per amino acid  (denominator for CAI)
     most_freq_ic_val = np.zeros(N_AA, dtype=np.float64)

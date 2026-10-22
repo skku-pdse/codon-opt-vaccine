@@ -98,8 +98,14 @@ def processGen(param):
 
 
 def process_each_gene(nucleotide_sequence):
-    """Wrapper for multiprocessing: strip newlines and call processGen."""
-    param = nucleotide_sequence.replace('\n', ' ')
+    """Wrapper for multiprocessing: normalise the sequence and call processGen.
+
+    All whitespace (including embedded newlines) is removed rather than replaced
+    by a space, and the sequence is upper-cased with U -> T.  Replacing a newline
+    with a space would shift the reading frame of every following codon, so the
+    codons would be silently dropped instead of counted.
+    """
+    param = ''.join(nucleotide_sequence.split()).upper().replace('U', 'T')
     return processGen(param)
 
 

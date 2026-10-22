@@ -14,9 +14,11 @@ def classify_motif_frame(sequence, motif, position):
         0, 3, 6, ... (i.e., 3k for k = 0, 1, 2, ...).
         An in-frame motif starts exactly at a codon boundary (index % 3 == 0).
         Reported 1-based locations are obtained by adding 1 to the 0-based index.
+        `position` is already the index of a confirmed occurrence and is used
+        directly; re-running find() here would return -1 for an absent motif and
+        -1 % 3 == 2 in Python, which would silently be reported as +2 frame.
     """
-    index = sequence.find(motif, position)
-    if index % 3 == 0:
+    if position % 3 == 0:
         return 'in-frame'
     return 'out-frame'
 
@@ -87,6 +89,12 @@ def get_sequence_length(sequence):
 def read_fasta_file(file_path):
     """Parse a FASTA file (supports multi-line sequences).
 
+    Sequences are upper-cased, U is converted to T, and all whitespace is
+    removed, so RNA or DNA input in any case is handled identically.  This is
+    the same normalisation used by modules 02, 04 and 06; keeping it consistent
+    across modules prevents a lowercase or RNA input from silently returning
+    zero motif counts instead of raising an error.
+
     Args:
         file_path (str): Path to the FASTA file.
 
@@ -94,14 +102,16 @@ def read_fasta_file(file_path):
         dict: {sequence_name: sequence_string}
     """
     sequences = {}
-    current_sequence = ''
+    current_sequence = None
     with open(file_path, 'r') as file:
         for line in file:
             if line.startswith('>'):
                 current_sequence = line[1:].strip()
                 sequences[current_sequence] = ''
-            else:
-                sequences[current_sequence] += line.strip()
+            elif current_sequence is not None:
+                sequences[current_sequence] += (
+                    ''.join(line.split()).upper().replace('U', 'T')
+                )
     return sequences
 
 

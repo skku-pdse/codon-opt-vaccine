@@ -1,0 +1,9 @@
+Sequence	Length	Number of motifs (in-frame)	Motifs (in-frame)	Locations (in-frame)	Number of motifs (out-frame)	Motifs (out-frame)	Locations (out-frame)	Number of motifs (+1 frame)	Motifs (+1 frame)	Locations (+1 frame)	Number of motifs (+2 frame)	Motifs (+2 frame)	Locations (+2 frame)
+WT	3822	3	TTTAAAA, GGTTTTT, GTTAAAC	601, 655, 2887	1	TTTAAAC	2874	0			1	TTTAAAC	2874
+BNT162b2	3825	0			0			0			0		
+mRNA-1273	3828	0			0			0			0		
+AZD1222	3822	0			0			0			0		
+LD1	3819	1	GGGTTTA	3655	0			0			0		
+LD2	3819	0			1	GGGAAAC	549	0			1	GGGAAAC	549
+OG	3819	0			0			0			0		
+mRid	3819	0			0			0			0		
